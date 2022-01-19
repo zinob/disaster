@@ -10,15 +10,16 @@ import org.apache.logging.log4j.kotlin.logger
 fun Application.configureRouting() {
     val log = logger("Main")
     routing {
-        get("/{path?}") {
-            log.error("Starting")
-            var path:String = call.parameters["path"] ?: "None"
-            log.error("got path: ${path}")
-            log.error("\${jndi:ldap://127.0.0.1:1389/probably_not_vulnerable}")
-            call.request.headers.forEach { k, v -> log.error("$k:$v") }
-
-            call.respondText("Hello World! ${path}")
-            log.error("Done")
+        route("/{path...}" ) {
+            handle {
+                log.error("Starting")
+                var path: String = call.parameters["path"] ?: "None"
+                log.error("got path: ${path}")
+                log.error("got full_path: ${call.request.path()}")
+                log.error( "got body: ${call.receiveText()}")
+                call.request.headers.forEach { k, v -> log.error("$k:$v") }
+                call.respondText("Hello World! ${path}")
+            }
         }
     }
 }
